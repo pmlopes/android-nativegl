@@ -1,0 +1,272 @@
+//	public void saveShort(OutputStream out) throws IOException {
+//		
+//		double[] vertexBuf = null;
+//		double[] uvBuf = null;
+//		double[] normalBuf = null;
+//		int[][] grp;
+//		
+//		int t = 0;
+//		int vi = 0, ti = 0, ni = 0;
+//		grp = new int[group.size()][2];
+//		for(int i=0; i<grp.length; i++) {
+//			grp[i][0] = group.get(i).gbegin * 3;
+//			grp[i][1] = group.get(i).gend * 3;
+//			t += (grp[i][1] - grp[i][0]);
+//		}
+//		vertexBuf = new double[t * 3];
+//		if(normal.size() > 0) {
+//			normalBuf = new double[t * 3];
+//		}
+//		if(uv.size() > 0) {
+//			uvBuf = new double[t * 2];
+//		}
+//		
+//		for(int i=0; i<grp.length; i++) {
+//			for(int j = grp[i][0] / 3; j < grp[i][1] / 3; j++) {
+//				F f = face.get(j);
+//				vertexBuf[vi++] = vertex.get(f.va).x;
+//				vertexBuf[vi++] = vertex.get(f.va).y;
+//				vertexBuf[vi++] = vertex.get(f.va).z;
+//				if(normal.size() > 0) {
+//					normalBuf[ni++] = normal.get(f.na).x;
+//					normalBuf[ni++] = normal.get(f.na).y;
+//					normalBuf[ni++] = normal.get(f.na).z;
+//				}
+//				if(uv.size() > 0) {
+//					uvBuf[ti++] = uv.get(f.ta).u;
+//					uvBuf[ti++] = uv.get(f.ta).v;
+//				}
+//				
+//				vertexBuf[vi++] = vertex.get(f.vb).x;
+//				vertexBuf[vi++] = vertex.get(f.vb).y;
+//				vertexBuf[vi++] = vertex.get(f.vb).z;
+//				if(normal.size() > 0) {
+//					normalBuf[ni++] = normal.get(f.nb).x;
+//					normalBuf[ni++] = normal.get(f.nb).y;
+//					normalBuf[ni++] = normal.get(f.nb).z;
+//				}
+//				if(uv.size() > 0) {
+//					uvBuf[ti++] = uv.get(f.tb).u;
+//					uvBuf[ti++] = uv.get(f.tb).v;
+//				}
+//				
+//				vertexBuf[vi++] = vertex.get(f.vc).x;
+//				vertexBuf[vi++] = vertex.get(f.vc).y;
+//				vertexBuf[vi++] = vertex.get(f.vc).z;
+//				if(normal.size() > 0) {
+//					normalBuf[ni++] = normal.get(f.nc).x;
+//					normalBuf[ni++] = normal.get(f.nc).y;
+//					normalBuf[ni++] = normal.get(f.nc).z;
+//				}
+//				if(uv.size() > 0) {
+//					uvBuf[ti++] = uv.get(f.tb).u;
+//					uvBuf[ti++] = uv.get(f.tc).v;
+//				}
+//			}
+//		}
+//		
+//		double[] modelMin = new double[] {Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE};
+//		double[] modelMax = new double[] {Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
+//		
+//		for(int i=0; i<vertexBuf.length; i+=3) {
+//			modelMin[0] = Math.min(modelMin[0], vertexBuf[i]);
+//			modelMin[1] = Math.min(modelMin[1], vertexBuf[i+1]);
+//			modelMin[2] = Math.min(modelMin[2], vertexBuf[i+2]);
+//		}
+//		
+//		short[] vertexBufS = new short[vertexBuf.length];
+//		for(int i=0; i<vertexBufS.length; i+=3) {
+//			vertexBufS[i] = (short) Math.floor(((vertexBuf[i] - modelMin[0]) / (modelMax[0] - modelMin[0])) * 65536.0 - 32768.0 + 0.5);
+//			vertexBufS[i+1] = (short) Math.floor(((vertexBuf[i+1] - modelMin[1]) / (modelMax[1] - modelMin[1])) * 65536.0 - 32768.0 + 0.5);
+//			vertexBufS[i+2] = (short) Math.floor(((vertexBuf[i+2] - modelMin[2]) / (modelMax[2] - modelMin[2])) * 65536.0 - 32768.0 + 0.5);
+//		}
+//		
+//		// write header flag telling which components are present
+//		short header = 0x1ee7;
+//		short flag = 0;
+//		
+//		if(normalBuf != null) flag += Model.HAS_NORMALS;
+//		if(uvBuf != null) flag += Model.HAS_UVS;
+//		if(texBuf != null) flag += Model.HAS_PIXELS;
+//		
+//		writeShort(out, header);
+//		writeShort(out, flag);
+//		
+//		// write group info
+//		writeInt(out, grp.length);
+//		for(int i=0; i<grp.length; i++) {
+//			writeInt(out, grp[i][0]);
+//			writeInt(out, grp[i][1]);
+//		}
+//		
+//		// vertex data requires some extra data to compensate the short representation
+//		float[] scale = new float[3];
+//		float[] bias = new float[3];
+//		// write scale and bias interleaved
+//		for (int i = 0; i < 3; ++i) {
+//		    scale[i] = ((float) modelMax[i] - (float) modelMin[i]) / 65536.0f;
+//		    writeFloat(out, scale[i]);
+//		    bias[i] = (32768.0f / 65536.0f) * ((float) modelMax[i] - (float) modelMin[i]) + (float) modelMin[i];
+//		    writeFloat(out, bias[i]);
+//		}
+//		// write vertex data
+//		writeInt(out, vertexBufS.length);
+//		for(int i=0; i<vertexBufS.length; i++) {
+//			writeShort(out, vertexBufS[i]);
+//		}
+//		
+////		// to draw
+////		const float scale[3], bias[3];
+////		for (int i = 0; i < 3; ++i) {
+////		    scale[i] = (modelMax[j] - modelMin[j]) / 65536.0f;
+////		    bias[i] = (32768.0f / 65536.0f) * (modelMax[j] - modelMin[j]) + modelMin[j];
+////		}
+////
+////		glTranslatef(bias[0], bias[1], bias[2]);
+////		glScalef(scale[0], scale[1], scale[2]);
+////		glVertexPointer(3, GL_SHORT, 0, short_coordinates);
+////		glDrawArrays(GL_TRIANGLES, 0, size);
+//		
+//		// write normal data
+//		if(normalBuf != null) {
+//			writeInt(out, normalBuf.length);
+//			for(int i=0; i<normalBuf.length; i++) {
+//				writeFloat(out, (float) normalBuf[i]);
+//			}
+//		}
+//		
+//		// write uv data
+//		if(uvBuf != null) {
+//			writeInt(out, uvBuf.length);
+//			for(int i=0; i<uvBuf.length; i++) {
+//				writeFloat(out, (float) uvBuf[i]);
+//			}
+//		}
+//		
+//		// write pixel data
+//		if(texBuf != null) {
+//			writeInt(out, tw);
+//			writeInt(out, th);
+//			// length is tw * th
+//			for(int i=0; i<texBuf.length; i++) {
+//				writeColor(out, texBuf[i]);
+//			}
+//		}
+//	}
+	
+//	public void save(OutputStream out) throws IOException {
+//		
+//		float[] vertexBuf = null;
+//		float[] uvBuf = null;
+//		float[] normalBuf = null;
+//		int[][] grp;
+//		
+//		int t = 0;
+//		int vi = 0, ti = 0, ni = 0;
+//		grp = new int[group.size()][2];
+//		for(int i=0; i<grp.length; i++) {
+//			grp[i][0] = group.get(i).gbegin * 3;
+//			grp[i][1] = group.get(i).gend * 3;
+//			t += (grp[i][1] - grp[i][0]);
+//		}
+//		vertexBuf = new float[t * 3];
+//		if(normal.size() > 0) {
+//			normalBuf = new float[t * 3];
+//		}
+//		if(uv.size() > 0) {
+//			uvBuf = new float[t * 2];
+//		}
+//		
+//		for(int i=0; i<grp.length; i++) {
+//			for(int j = grp[i][0] / 3; j < grp[i][1] / 3; j++) {
+//				F f = face.get(j);
+//				vertexBuf[vi++] = (float) vertex.get(f.va).x;
+//				vertexBuf[vi++] = (float) vertex.get(f.va).y;
+//				vertexBuf[vi++] = (float) vertex.get(f.va).z;
+//				if(normal.size() > 0) {
+//					normalBuf[ni++] = (float) normal.get(f.na).x;
+//					normalBuf[ni++] = (float) normal.get(f.na).y;
+//					normalBuf[ni++] = (float) normal.get(f.na).z;
+//				}
+//				if(uv.size() > 0) {
+//					uvBuf[ti++] = (float) uv.get(f.ta).u;
+//					uvBuf[ti++] = (float) uv.get(f.ta).v;
+//				}
+//				
+//				vertexBuf[vi++] = (float) vertex.get(f.vb).x;
+//				vertexBuf[vi++] = (float) vertex.get(f.vb).y;
+//				vertexBuf[vi++] = (float) vertex.get(f.vb).z;
+//				if(normal.size() > 0) {
+//					normalBuf[ni++] = (float) normal.get(f.nb).x;
+//					normalBuf[ni++] = (float) normal.get(f.nb).y;
+//					normalBuf[ni++] = (float) normal.get(f.nb).z;
+//				}
+//				if(uv.size() > 0) {
+//					uvBuf[ti++] = (float) uv.get(f.tb).u;
+//					uvBuf[ti++] = (float) uv.get(f.tb).v;
+//				}
+//				
+//				vertexBuf[vi++] = (float) vertex.get(f.vc).x;
+//				vertexBuf[vi++] = (float) vertex.get(f.vc).y;
+//				vertexBuf[vi++] = (float) vertex.get(f.vc).z;
+//				if(normal.size() > 0) {
+//					normalBuf[ni++] = (float) normal.get(f.nc).x;
+//					normalBuf[ni++] = (float) normal.get(f.nc).y;
+//					normalBuf[ni++] = (float) normal.get(f.nc).z;
+//				}
+//				if(uv.size() > 0) {
+//					uvBuf[ti++] = (float) uv.get(f.tb).u;
+//					uvBuf[ti++] = (float) uv.get(f.tc).v;
+//				}
+//			}
+//		}
+//		
+//		// write header flag telling which components are present
+//		short header = 0x1ee7;
+//		short flag = 0;
+//		
+//		if(normalBuf != null) flag += Model.HAS_NORMALS;
+//		if(uvBuf != null) flag += Model.HAS_UVS;
+//		if(texBuf != null) flag += Model.HAS_PIXELS;
+//		
+//		writeShort(out, header);
+//		writeShort(out, flag);
+//		
+//		// write group info
+//		writeInt(out, grp.length);
+//		for(int i=0; i<grp.length; i++) {
+//			writeInt(out, grp[i][0]);
+//			writeInt(out, grp[i][1]);
+//		}
+//		// write vertex data
+//		writeInt(out, vertexBuf.length);
+//		for(int i=0; i<vertexBuf.length; i++) {
+//			writeFloat(out, vertexBuf[i]);
+//		}
+//		
+//		// write normal data
+//		if(normalBuf != null) {
+//			writeInt(out, normalBuf.length);
+//			for(int i=0; i<normalBuf.length; i++) {
+//				writeFloat(out, normalBuf[i]);
+//			}
+//		}
+//		
+//		// write uv data
+//		if(uvBuf != null) {
+//			writeInt(out, uvBuf.length);
+//			for(int i=0; i<uvBuf.length; i++) {
+//				writeFloat(out, uvBuf[i]);
+//			}
+//		}
+//		
+//		// write pixel data
+//		if(texBuf != null) {
+//			writeInt(out, tw);
+//			writeInt(out, th);
+//			// length is tw * th
+//			for(int i=0; i<texBuf.length; i++) {
+//				writeColor(out, texBuf[i]);
+//			}
+//		}
+//	}

@@ -1,0 +1,2 @@
+#!/bin/sh
+g++ -lglut -lGLU -o native -Iinclude tokamak/boxcylinder.cpp tokamak/collision.cpp tokamak/collisionbody.cpp tokamak/constraint.cpp tokamak/cylinder.cpp tokamak/dcd.cpp tokamak/lines.cpp tokamak/ne_interface.cpp tokamak/perflinux.cpp tokamak/region.cpp tokamak/restcontact.cpp tokamak/rigidbody.cpp tokamak/rigidbodybase.cpp tokamak/scenery.cpp tokamak/simulator.cpp tokamak/solver.cpp tokamak/sphere.cpp tokamak/stack.cpp tokamak/tricollision.cpp native-app.cpp

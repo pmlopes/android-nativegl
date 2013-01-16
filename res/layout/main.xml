@@ -1,0 +1,14 @@
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/nlayout"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<jetdrone.nalib.NGLView
+		android:id="@+id/nglview"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+	<jetdrone.nalib.NJoystickView
+		android:id="@+id/njoystickview"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+</RelativeLayout>
